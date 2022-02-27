@@ -4,7 +4,7 @@
 ## 使用方法
 [下载](https://github.com/h3110w0r1d-y/ruijie_weblogin/releases)
 ```
-./ruijie_weblogin <username> <password> <internet|local> [auto]
+./ruijie_weblogin <username> <password> internet|local [auto]
 ```
 `internet`: 互联网
 
