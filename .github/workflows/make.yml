@@ -1,0 +1,27 @@
+name: make
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: Build
+      run: make -f Makefile.cross-compiles
+
+    - name: Test
+      uses: ncipollo/release-action@v1
+      with:
+          artifacts: "release/*"
+          allowUpdates: true
