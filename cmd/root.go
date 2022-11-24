@@ -171,7 +171,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "", "Config file (default is localDir/HustWebAuth.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "", "Config file (default is $HOME/HustWebAuth.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&account, "account", "a", "", "Account for ruijie web authentication")
 	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "Password for ruijie web authentication")
 	rootCmd.PersistentFlags().StringVarP(&service, "service", "s", "internet", "Service type, options: [internet, local]")
@@ -234,14 +234,21 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		ex, err := os.Executable()
+		// ex, err := os.Executable()
+		// if err != nil {
+		// 	log.Panic(err)
+		// }
+		// exDir := filepath.Dir(ex)
+		// viper.AddConfigPath(exDir)
+
+		home, err := os.UserHomeDir()
 		if err != nil {
 			log.Panic(err)
 		}
-		exDir := filepath.Dir(ex)
-		cfgFile = filepath.Join(exDir, "HustWebAuth.yaml")
 		// Search config in home directory with name "HustWebAuth" (without extension).
-		viper.AddConfigPath(exDir)
+		viper.AddConfigPath(home)
+		cfgFile = filepath.Join(home, "HustWebAuth.yaml")
+
 		viper.SetConfigType("yaml")
 		viper.SetConfigName("HustWebAuth")
 	}
@@ -279,6 +286,6 @@ func saveConfig() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println("Save config file: " + viper.ConfigFileUsed())
+		log.Println("Save config file: " + cfgFile)
 	}
 }
