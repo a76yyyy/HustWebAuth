@@ -1,4 +1,4 @@
-module main
+module github.com/a76yyyy/HustWebAuth
 
 go 1.17
 

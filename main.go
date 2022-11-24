@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "main/cmd"
+import "github.com/a76yyyy/HustWebAuth/cmd"
 
 func main() {
 	cmd.Execute()
