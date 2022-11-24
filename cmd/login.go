@@ -1,6 +1,7 @@
 /*
 Copyright © 2022 a76yyyy q981331502@163.com
 */
+
 package cmd
 
 import (
@@ -44,6 +45,7 @@ func init() {
 	// loginCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// Get cookie of the auth page
 func GetCookie(url string) (*http.Cookie, error) {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -54,6 +56,7 @@ func GetCookie(url string) (*http.Cookie, error) {
 	return cookie, err
 }
 
+// Login to auth the network
 func login(url string, queryString string, account string, password string, service string, cookie *http.Cookie) (string, error) {
 	trueurl := strings.Split(url, "/eportal/")[0] + "/eportal/InterFace.do?method=login"
 
@@ -80,6 +83,7 @@ func login(url string, queryString string, account string, password string, serv
 	return string(body), err
 }
 
+// RegisterMAC register the mac address, only for the first time
 func RegisterMAC(url string, userIndex string, cookie *http.Cookie) (string, error) {
 	trueurl := strings.Split(url, "/eportal/")[0] + "/eportal/InterFace.do?method=registerMac"
 	client := &http.Client{}
@@ -100,6 +104,7 @@ func RegisterMAC(url string, userIndex string, cookie *http.Cookie) (string, err
 	return string(body), nil
 }
 
+// Hust web auth once.
 func Login() (res string, err error) {
 	url, queryString, connected, err := GetLoginUrl()
 	if err != nil {

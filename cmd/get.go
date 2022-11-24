@@ -2,6 +2,7 @@
 Copyright © 2022 a76yyyy q981331502@163.com
 
 */
+
 package cmd
 
 import (
@@ -49,6 +50,7 @@ func init() {
 	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// Get the login url from the redirect url
 func GetLoginUrl() (string, string, bool, error) {
 	pinger, err := ping.NewPinger(pingIP)
 	if err != nil {
