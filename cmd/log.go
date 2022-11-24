@@ -33,7 +33,7 @@ func initLog() {
 
 	if sysType != "windows" && sysLog {
 		var err error
-		sysLogWriter, err := syslog.New(syslog.LOG_INFO, "ruijie_web_login")
+		sysLogWriter, err := syslog.New(syslog.LOG_INFO, "HustWebAuth")
 		if err != nil {
 			log.Fatal(err)
 		}

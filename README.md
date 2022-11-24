@@ -1,23 +1,35 @@
-# ruijie_weblogin
-锐捷WEB认证跨平台脚本
+# HustWebAuth
+锐捷 WEB 认证跨平台脚本
 
 ## 使用方法
-[下载](https://github.com/a76yyyy/ruijie_weblogin/releases)
+1. 下载指定架构的[可执行文件](https://github.com/a76yyyy/HustWebAuth/releases)
+2. 重命名可执行文件为 `HustWebAuth` 或 `HustWebAuth.exe`
+3. 命令行运行 `./HustWebAuth -h` 查看帮助
+4. 命令行运行 `./HustWebAuth -a account -p password` 进行认证
+
+> ### Tips:
+> 1. 请确保你的账号密码正确
+> 2. 请确保你的网络连接正常, 且使用锐捷 Web 认证方式
+> 3. 可使用 `./HustWebAuth -a account -p password -o` 进行认证并保存配置文件
+> 4. 可使用 `./HustWebAuth login -r` 开启无感认证, 需提前下线你的设备
+
+----------
 ```bash
-ruijie_web_login is a program used to implement Ruijie web authentication.
+> ./HustWebAuth -h
+HustWebAuth is a program used to implement Ruijie web authentication.
 
 Usage:
-  ruijie_weblogin_{os}_{arch} [flags]
-  ruijie_weblogin_{os}_{arch} [command]
+  HustWebAuth [flags]
+  HustWebAuth [command]
 
 Available Commands:
   get         Get the login url from the redirect url.
   help        Help about any command
-  login       Ruijie web login only once
+  login       Hust web auth only once
 
 Flags:
-  -a, --account string           Account
-  -f, --config string            Config file (default is localDir/ruijie.yaml)
+  -a, --account string           Account for ruijie web authentication
+  -f, --config string            Config file (default is localDir/HustWebAuth.yaml)
   -c, --cycle                    Enable cycle mode
       --cycleDuration duration   Cycle duration (default 5m0s)
       --cycleRetry int           Cycle retry times, -1 means retry forever (default 3)
@@ -27,12 +39,12 @@ Flags:
       --logAppend                Log file append mode.
                                  NOTE: if logRandom is true, it will be ignored (default true)
       --logConnected             Enable logging of "The network is connected" (default true)
-      --logDir string            Log Directory (default Temp/ruijie)
+      --logDir string            Log Directory (default Temp/HustWebAuth)
   -l, --logFile string           Log file name (default means output to os.stdout)
       --logRandom                Log file name with random string.
                                  NOTE: If logFile includes a "*", the random string replaces the last "*".
                                   (default true)
-  -p, --password string          Password
+  -p, --password string          Password for ruijie web authentication
       --pingCount int            ping count (default 3)
       --pingIP string            IP address to ping (default "202.114.0.131")
       --pingPrivilege            Sets the type of ping pinger will send.
@@ -46,11 +58,5 @@ Flags:
   -s, --service string           Service, options: [internet, local] (default "internet")
       --syslog                   Enable syslog, not support windows
 
-Use "ruijie_weblogin_{os}_{arch} [command] --help" for more information about a command.
+Use "HustWebAuth [command] --help" for more information about a command.
 ```
-
-`internet`: 互联网
-
-`local`: 内网
-
-`register`: 开启无感认证

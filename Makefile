@@ -15,6 +15,6 @@ app:
 		gomips=$(shell echo "$(n)" | cut -d : -f 3);\
 		target_suffix=$${os}_$${arch};\
 		echo "Build $${os}-$${arch}...";\
-		env CGO_ENABLED=0 GOOS=$${os} GOARCH=$${arch} GOMIPS=$${gomips} go build -ldflags "$(LDFLAGS)" -o ./release/ruijie_weblogin_$${target_suffix} ./;\
+		env CGO_ENABLED=0 GOOS=$${os} GOARCH=$${arch} GOMIPS=$${gomips} go build -ldflags "$(LDFLAGS)" -o ./release/HustWebAuth_$${target_suffix} ./;\
 		echo "Build $${os}-$${arch} done";\
 	)

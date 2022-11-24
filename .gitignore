@@ -4,5 +4,6 @@ main.exe
 main
 .history/
 ruijie
+HustWebAuth
 .vscode/
-ruijie.yaml
+*.yaml

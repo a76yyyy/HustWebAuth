@@ -19,7 +19,7 @@ import (
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Get the login url from the redirect url.",
+	Short: "Get the login url from the redirect url",
 	Long:  `If the specified IP fails to be pinged for more than the specified counts, get the login_url from the redirect_url`,
 	Run: func(cmd *cobra.Command, args []string) {
 		url, queryString, connected, err := GetLoginUrl()

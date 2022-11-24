@@ -18,8 +18,8 @@ var register bool
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
 	Use:   "login",
-	Short: "Ruijie web login only once",
-	Long:  `Ruijie web login only once.`,
+	Short: "Hust web auth only once",
+	Long:  `Hust web auth only once.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		res, err := Login()
 		if err != nil {

@@ -66,7 +66,7 @@ var sysType = runtime.GOOS
 var rootCmd = &cobra.Command{
 	Use:   filenameWithSuffix,
 	Short: "A program used to implement Ruijie web authentication",
-	Long:  `ruijie_web_login is a program used to implement Ruijie web authentication.`,
+	Long:  `HustWebAuth is a program used to implement Ruijie web authentication.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
@@ -75,7 +75,7 @@ var rootCmd = &cobra.Command{
 		}
 		if sysType != "windows" && daemonEnable {
 			if logFile == "" {
-				logFile = filepath.Join(os.TempDir(), "ruijie", filenameWithSuffix+".log")
+				logFile = filepath.Join(os.TempDir(), "HustWebAuth", filenameWithSuffix+".log")
 			}
 			if daemonPidFile == "" {
 				daemonPidFile = "/var/run/" + filenameWithSuffix + ".pid"
@@ -98,11 +98,11 @@ var rootCmd = &cobra.Command{
 			defer cntxt.Release()
 
 			log.Println("- - - - - - - - - - - - - - - - - - -")
-			log.Println("Ruijie Web Login Daemon started.")
+			log.Println("HustWebAuth Daemon started.")
 		}
 
 		log.Println("- - - - - - - - - - - - - - - - - - -")
-		log.Println("Ruijie Web Login started.")
+		log.Println("HustWebAuth started.")
 		retryCount := 0
 		res, err := Login()
 		if err != nil {
@@ -171,10 +171,10 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "", "Config file (default is localDir/ruijie.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&account, "account", "a", "", "Account")
-	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "Password")
-	rootCmd.PersistentFlags().StringVarP(&service, "service", "s", "internet", "Service, options: [internet, local]")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "", "Config file (default is localDir/HustWebAuth.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&account, "account", "a", "", "Account for ruijie web authentication")
+	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "Password for ruijie web authentication")
+	rootCmd.PersistentFlags().StringVarP(&service, "service", "s", "internet", "Service type, options: [internet, local]")
 
 	rootCmd.PersistentFlags().StringVar(&pingIP, "pingIP", "202.114.0.131", "IP address to ping")
 	rootCmd.PersistentFlags().IntVar(&pingCount, "pingCount", 3, "ping count")
@@ -185,7 +185,7 @@ true means pinger will send a "privileged" raw ICMP ping.
 NOTE: setting to true requires that it be run with super-user privileges.
 `)
 	rootCmd.PersistentFlags().StringVar(&redirectURL, "redirectURL", "http://123.123.123.123", "Redirect URL")
-	rootCmd.PersistentFlags().StringVar(&logDir, "logDir", filepath.Join(os.TempDir(), "ruijie"), "Log Directory")
+	rootCmd.PersistentFlags().StringVar(&logDir, "logDir", filepath.Join(os.TempDir(), "HustWebAuth"), "Log Directory")
 	rootCmd.PersistentFlags().StringVarP(&logFile, "logFile", "l", "", "Log file name (default means output to os.stdout)")
 	rootCmd.PersistentFlags().BoolVar(&logRandom, "logRandom", true, "Log file name with random string.\nNOTE: If logFile includes a \"*\", the random string replaces the last \"*\".\n")
 	rootCmd.PersistentFlags().BoolVar(&logAppend, "logAppend", true, "Log file append mode. \nNOTE: if logRandom is true, it will be ignored")
@@ -239,11 +239,11 @@ func initConfig() {
 			log.Panic(err)
 		}
 		exDir := filepath.Dir(ex)
-		cfgFile = filepath.Join(exDir, "ruijie.yaml")
-		// Search config in home directory with name "ruijie" (without extension).
+		cfgFile = filepath.Join(exDir, "HustWebAuth.yaml")
+		// Search config in home directory with name "HustWebAuth" (without extension).
 		viper.AddConfigPath(exDir)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName("ruijie")
+		viper.SetConfigName("HustWebAuth")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
