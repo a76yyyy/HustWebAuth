@@ -20,7 +20,7 @@ jobs:
     - name: Build
       run: make -f Makefile.cross-compiles
 
-    - name: Test
+    - name: Release
       uses: ncipollo/release-action@v1
       with:
           artifacts: "release/*"
