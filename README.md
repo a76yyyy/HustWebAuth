@@ -16,7 +16,9 @@ HustWebAuth
     >
     > 1. 下载指定架构的[可执行文件](https://github.com/a76yyyy/HustWebAuth/releases)
     > 2. 重命名可执行文件为 `HustWebAuth` 或 `HustWebAuth.exe`
-    > 3. **(建议)** 将可执行文件移动到 `/usr/local/bin`目录下 或 添加到`Path`环境变量中
+    > 3. 将文件权限修改为可执行权限, 如 `chmod +x HustWebAuth`
+    > 4. **(建议)** 将可执行文件移动到 `/usr/local/bin`目录下 或 添加到`Path`环境变量中
+
 
 2. 命令行运行 `HustWebAuth -h` 查看帮助
 3. 命令行运行 `HustWebAuth -a account -p password` 进行认证
