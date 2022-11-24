@@ -1,6 +1,5 @@
 /*
 Copyright © 2022 a76yyyy q981331502@163.com
-
 */
 package cmd
 
@@ -14,11 +13,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var register bool
+
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
 	Use:   "login",
-	Short: "Ruijie web login",
-	Long:  `Ruijie web login.`,
+	Short: "Ruijie web login only once",
+	Long:  `Ruijie web login only once.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		res, err := Login()
 		if err != nil {
@@ -35,7 +36,8 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// loginCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// Cmd.PersistentFlags().String("foo", "", "A help for foo")
+	loginCmd.PersistentFlags().BoolVarP(&register, "register", "r", false, "Register Mac address")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
@@ -104,16 +106,17 @@ func Login() (res string, err error) {
 		return "", err
 	}
 	if connected {
-		if connectLog {
-			return "", nil
+		if logConnected {
+			return "The network is connected, no authentication required", nil
 		}
-		return "The network is connected, no authentication required", nil
+		return "", nil
 	}
 
 	cookie, err := GetCookie(url)
 	if err != nil {
 		return "", err
 	}
+
 	res, err = login(url, queryString, account, password, service, cookie)
 	if err != nil {
 		return "", err

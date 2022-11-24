@@ -39,20 +39,23 @@ var (
 	account       string
 	password      string
 	service       string
-	register      bool
 	pingIP        string
 	pingCount     int
 	pingTimeout   time.Duration
 	pingPrivilege bool
 	redirectURL   string
+	logDir        string
 	logFile       string
+	logRandom     bool
+	logAppend     bool
 	sysLog        bool
 	saveCfg       bool
 	daemonEnable  bool
 	daemonPidFile string
-	daemonTimeout time.Duration
-	daemonRetry   int
-	connectLog    bool
+	cycleEnable   bool
+	cycleDuration time.Duration
+	cycleRetry    int
+	logConnected  bool
 )
 
 var path, _ = os.Executable()
@@ -67,9 +70,12 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
+		if saveCfg {
+			return
+		}
 		if sysType != "windows" && daemonEnable {
 			if logFile == "" {
-				logFile = "/var/log/" + filenameWithSuffix + ".log"
+				logFile = filepath.Join(os.TempDir(), "ruijie", filenameWithSuffix+".log")
 			}
 			if daemonPidFile == "" {
 				daemonPidFile = "/var/run/" + filenameWithSuffix + ".pid"
@@ -91,26 +97,50 @@ var rootCmd = &cobra.Command{
 			}
 			defer cntxt.Release()
 
-			log.Print("- - - - - - - - - - - - - - -")
-			log.Print("daemon started")
+			log.Println("- - - - - - - - - - - - - - - - - - -")
+			log.Println("Ruijie Web Login Daemon started.")
+		}
 
-			eventsTick := time.NewTicker(daemonTimeout)
+		log.Println("- - - - - - - - - - - - - - - - - - -")
+		log.Println("Ruijie Web Login started.")
+		retryCount := 0
+		res, err := Login()
+		if err != nil {
+			if cycleEnable {
+				if cycleRetry < 0 {
+					log.Println("Login failed, Err: ", err)
+					log.Println("Login retrying...")
+				} else if retryCount < cycleRetry {
+					retryCount++
+					log.Println("Login failed, Err: ", err)
+					log.Println("Login retry ", strconv.Itoa(retryCount), "times after "+cycleDuration.String())
+				} else {
+					log.Fatal("Login failed, Err: ", err)
+				}
+			} else {
+				log.Fatal("Login failed, Err: ", err)
+			}
+		}
+		if res != "" {
+			log.Println(res)
+		}
+
+		if cycleEnable {
+			eventsTick := time.NewTicker(cycleDuration)
 			defer eventsTick.Stop()
-			retryCount := 0
 			for range eventsTick.C {
 				res, err := Login()
 				if err != nil {
-					if daemonRetry < 0 {
+					if cycleRetry < 0 {
 						log.Println("Login failed, Err: ", err)
 						log.Println("Login retrying...")
-					} else if retryCount < daemonRetry {
+					} else if retryCount < cycleRetry {
 						retryCount++
 						log.Println("Login failed, Err: ", err)
-						log.Println("Login retry", strconv.Itoa(retryCount), "times after", daemonTimeout.String())
+						log.Println("Login retry", strconv.Itoa(retryCount), "times after", cycleDuration.String())
 					} else {
 						log.Println("Login failed, Err: ", err)
-						log.Println("Exceed the maximum number of retries, daemon stopped")
-						os.Exit(1)
+						log.Fatal("Exceed the maximum number of retries, daemon stopped!")
 					}
 				} else {
 					if res != "" {
@@ -119,14 +149,6 @@ var rootCmd = &cobra.Command{
 					retryCount = 0
 				}
 			}
-		}
-
-		res, err := Login()
-		if err != nil {
-			log.Fatal(err)
-		}
-		if res != "" {
-			log.Println(res)
 		}
 	},
 }
@@ -141,19 +163,19 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initLog)
 	cobra.OnInitialize(initConfig)
-	cobra.OnInitialize(saveConfig)
+	cobra.OnInitialize(initLog)
+	cobra.OnFinalize(saveConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "", "Config file (default is localDir/ruijie.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&account, "account", "n", "", "Account")
+	rootCmd.PersistentFlags().StringVarP(&account, "account", "a", "", "Account")
 	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "Password")
-	rootCmd.PersistentFlags().StringVarP(&service, "service", "S", "internet", "Service, options: [internet, local]")
-	rootCmd.PersistentFlags().BoolVarP(&register, "register", "r", false, "Register Mac address")
+	rootCmd.PersistentFlags().StringVarP(&service, "service", "s", "internet", "Service, options: [internet, local]")
+
 	rootCmd.PersistentFlags().StringVar(&pingIP, "pingIP", "202.114.0.131", "IP address to ping")
 	rootCmd.PersistentFlags().IntVar(&pingCount, "pingCount", 3, "ping count")
 	rootCmd.PersistentFlags().DurationVar(&pingTimeout, "pingTimeout", 3*time.Second, "Ping timeout")
@@ -163,34 +185,41 @@ true means pinger will send a "privileged" raw ICMP ping.
 NOTE: setting to true requires that it be run with super-user privileges.
 `)
 	rootCmd.PersistentFlags().StringVar(&redirectURL, "redirectURL", "http://123.123.123.123", "Redirect URL")
-	rootCmd.PersistentFlags().StringVarP(&logFile, "logFile", "l", "", "Log file address (default means output to os.stdout)")
+	rootCmd.PersistentFlags().StringVar(&logDir, "logDir", filepath.Join(os.TempDir(), "ruijie"), "Log Directory")
+	rootCmd.PersistentFlags().StringVarP(&logFile, "logFile", "l", "", "Log file name (default means output to os.stdout)")
+	rootCmd.PersistentFlags().BoolVar(&logRandom, "logRandom", true, "Log file name with random string.\nNOTE: If logFile includes a \"*\", the random string replaces the last \"*\".\n")
+	rootCmd.PersistentFlags().BoolVar(&logAppend, "logAppend", true, "Log file append mode. \nNOTE: if logRandom is true, it will be ignored")
+	rootCmd.PersistentFlags().BoolVar(&logConnected, "logConnected", true, "Enable logging of \"The network is connected\"")
 	rootCmd.PersistentFlags().BoolVar(&sysLog, "syslog", false, "Enable syslog, not support windows")
-	rootCmd.PersistentFlags().BoolVarP(&saveCfg, "save", "s", false, "Save config file")
-	rootCmd.PersistentFlags().BoolVarP(&daemonEnable, "daemon", "d", false, "Enable daemon mode, not support windows")
-	rootCmd.PersistentFlags().StringVar(&daemonPidFile, "daemonPidFile", "", "Daemon pid file")
-	rootCmd.PersistentFlags().DurationVar(&daemonTimeout, "daemonTimeout", 1*time.Minute, "Daemon cycle time")
-	rootCmd.PersistentFlags().IntVar(&daemonRetry, "daemonRetry", 3, "Daemon retry times, -1 means retry forever")
-	rootCmd.PersistentFlags().BoolVar(&connectLog, "connectLog", false, "Enable connect log")
+	rootCmd.PersistentFlags().BoolVarP(&saveCfg, "save", "o", false, "Save config file")
+	rootCmd.Flags().BoolVarP(&daemonEnable, "daemon", "d", false, "Enable daemon mode, not support windows")
+	rootCmd.Flags().StringVar(&daemonPidFile, "daemonPidFile", "", "Daemon pid file")
+	rootCmd.Flags().BoolVarP(&cycleEnable, "cycle", "c", false, "Enable cycle mode")
+	rootCmd.Flags().DurationVar(&cycleDuration, "cycleDuration", 5*time.Minute, "Cycle duration")
+	rootCmd.Flags().IntVar(&cycleRetry, "cycleRetry", 3, "Cycle retry times, -1 means retry forever")
 
 	rootCmd.MarkFlagRequired("account")
 	rootCmd.MarkFlagRequired("password")
 
-	viper.BindPFlag("ping.IP", rootCmd.PersistentFlags().Lookup("pingIP"))
-	viper.BindPFlag("ping.Count", rootCmd.PersistentFlags().Lookup("pingCount"))
-	viper.BindPFlag("ping.Timeout", rootCmd.PersistentFlags().Lookup("pingTimeout"))
-	viper.BindPFlag("ping.Privilege", rootCmd.PersistentFlags().Lookup("pingPrivilege"))
-	viper.BindPFlag("redirect.URL", rootCmd.PersistentFlags().Lookup("redirectURL"))
-	viper.BindPFlag("account", rootCmd.PersistentFlags().Lookup("account"))
-	viper.BindPFlag("password", rootCmd.PersistentFlags().Lookup("password"))
-	viper.BindPFlag("service", rootCmd.PersistentFlags().Lookup("service"))
-	// viper.BindPFlag("register", rootCmd.PersistentFlags().Lookup("register"))
-	viper.BindPFlag("syslog", rootCmd.PersistentFlags().Lookup("syslog"))
-	// viper.BindPFlag("save", rootCmd.PersistentFlags().Lookup("save"))
-	viper.BindPFlag("daemon.Enable", rootCmd.PersistentFlags().Lookup("daemon"))
-	viper.BindPFlag("daemon.PidFile", rootCmd.PersistentFlags().Lookup("daemonPidFile"))
-	viper.BindPFlag("daemon.Timeout", rootCmd.PersistentFlags().Lookup("daemonTimeout"))
-	viper.BindPFlag("daemon.Retry", rootCmd.PersistentFlags().Lookup("daemonRetry"))
-	viper.BindPFlag("connectLog", rootCmd.PersistentFlags().Lookup("connectLog"))
+	viper.BindPFlag("auth.account", rootCmd.PersistentFlags().Lookup("account"))
+	viper.BindPFlag("auth.password", rootCmd.PersistentFlags().Lookup("password"))
+	viper.BindPFlag("auth.service", rootCmd.PersistentFlags().Lookup("service"))
+	viper.BindPFlag("ping.ip", rootCmd.PersistentFlags().Lookup("pingIP"))
+	viper.BindPFlag("ping.count", rootCmd.PersistentFlags().Lookup("pingCount"))
+	viper.BindPFlag("ping.timeout", rootCmd.PersistentFlags().Lookup("pingTimeout"))
+	viper.BindPFlag("ping.privilege", rootCmd.PersistentFlags().Lookup("pingPrivilege"))
+	viper.BindPFlag("redirect.url", rootCmd.PersistentFlags().Lookup("redirectURL"))
+	viper.BindPFlag("log.dir", rootCmd.PersistentFlags().Lookup("logDir"))
+	viper.BindPFlag("log.file", rootCmd.PersistentFlags().Lookup("logFile"))
+	viper.BindPFlag("log.random", rootCmd.PersistentFlags().Lookup("logRandom"))
+	viper.BindPFlag("log.append", rootCmd.PersistentFlags().Lookup("logAppend"))
+	viper.BindPFlag("log.connected", rootCmd.PersistentFlags().Lookup("logConnected"))
+	viper.BindPFlag("log.syslog", rootCmd.PersistentFlags().Lookup("syslog"))
+	viper.BindPFlag("daemon.enable", rootCmd.Flags().Lookup("daemon"))
+	viper.BindPFlag("daemon.pidFile", rootCmd.Flags().Lookup("daemonPidFile"))
+	viper.BindPFlag("cycle.enable", rootCmd.Flags().Lookup("cycle"))
+	viper.BindPFlag("cycle.duration", rootCmd.Flags().Lookup("cycleDuration"))
+	viper.BindPFlag("cycle.retry", rootCmd.Flags().Lookup("cycleRetry"))
 
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
@@ -222,6 +251,25 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		log.Println("Using config file: " + viper.ConfigFileUsed())
+		account = viper.GetString("auth.account")
+		password = viper.GetString("auth.password")
+		service = viper.GetString("auth.service")
+		pingIP = viper.GetString("ping.ip")
+		pingCount = viper.GetInt("ping.count")
+		pingTimeout = viper.GetDuration("ping.timeout")
+		pingPrivilege = viper.GetBool("ping.privilege")
+		redirectURL = viper.GetString("redirect.url")
+		logDir = viper.GetString("log.dir")
+		logFile = viper.GetString("log.file")
+		logRandom = viper.GetBool("log.random")
+		logAppend = viper.GetBool("log.append")
+		logConnected = viper.GetBool("log.connected")
+		sysLog = viper.GetBool("log.syslog")
+		daemonEnable = viper.GetBool("daemon.enable")
+		daemonPidFile = viper.GetString("daemon.pidFile")
+		cycleEnable = viper.GetBool("cycle.enable")
+		cycleDuration = viper.GetDuration("cycle.duration")
+		cycleRetry = viper.GetInt("cycle.retry")
 	}
 }
 
@@ -231,5 +279,6 @@ func saveConfig() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Println("Save config file: " + viper.ConfigFileUsed())
 	}
 }

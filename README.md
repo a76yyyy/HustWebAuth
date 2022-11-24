@@ -13,35 +13,42 @@ Usage:
 Available Commands:
   get         Get the login url from the redirect url.
   help        Help about any command
-  login       Ruijie web login
+  login       Ruijie web login only once
 
 Flags:
-  -n, --account string           Account
+  -a, --account string           Account
   -f, --config string            Config file (default is localDir/ruijie.yaml)
-      --connectLog               Enable connect log
+  -c, --cycle                    Enable cycle mode
+      --cycleDuration duration   Cycle duration (default 5m0s)
+      --cycleRetry int           Cycle retry times, -1 means retry forever (default 3)
   -d, --daemon                   Enable daemon mode, not support windows
       --daemonPidFile string     Daemon pid file
-      --daemonRetry int          Daemon retry times (default 3)
-      --daemonTimeout duration   Daemon cycle time (default 1m0s)
-  -h, --help                     help for ruijie_web_login
-  -l, --logFile string           Log file address (default means output to os.stdout)
+  -h, --help                     help for main.exe
+      --logAppend                Log file append mode.
+                                 NOTE: if logRandom is true, it will be ignored (default true)
+      --logConnected             Enable logging of "The network is connected" (default true)
+      --logDir string            Log Directory (default Temp/ruijie)
+  -l, --logFile string           Log file name (default means output to os.stdout)
+      --logRandom                Log file name with random string.
+                                 NOTE: If logFile includes a "*", the random string replaces the last "*".
+                                  (default true)
   -p, --password string          Password
       --pingCount int            ping count (default 3)
       --pingIP string            IP address to ping (default "202.114.0.131")
-      --pingPrivilege            Sets the type of ping pinger will send. 
-                                 false means pinger will send an "unprivileged" UDP ping. 
-                                 true means pinger will send a "privileged" raw ICMP ping. 
+      --pingPrivilege            Sets the type of ping pinger will send.
+                                 false means pinger will send an "unprivileged" UDP ping.
+                                 true means pinger will send a "privileged" raw ICMP ping.
                                  NOTE: setting to true requires that it be run with super-user privileges.
                                   (default true)
       --pingTimeout duration     Ping timeout (default 3s)
       --redirectURL string       Redirect URL (default "http://123.123.123.123")
-  -r, --register                 Register Mac address
-  -s, --save                     Save config file
-  -S, --service string           Service, options: [internet, local] (default "internet")
+  -o, --save                     Save config file
+  -s, --service string           Service, options: [internet, local] (default "internet")
       --syslog                   Enable syslog, not support windows
 
 Use "ruijie_weblogin_{os}_{arch} [command] --help" for more information about a command.
 ```
+
 `internet`: 互联网
 
 `local`: 内网
