@@ -24,6 +24,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -77,7 +78,11 @@ var rootCmd = &cobra.Command{
 		}
 		if sysType != "windows" && daemonEnable {
 			if logFile == "" {
-				logFile = filepath.Join(os.TempDir(), "HustWebAuth", filenameWithSuffix+".log")
+				tmpDir := filepath.Join(os.TempDir(), "HustWebAuth")
+				if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
+					os.Mkdir(tmpDir, fs.ModeDir)
+				}
+				logFile = filepath.Join(tmpDir, filenameWithSuffix+".log")
 			}
 			if daemonPidFile == "" {
 				daemonPidFile = "/var/run/" + filenameWithSuffix + ".pid"
