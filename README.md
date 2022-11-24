@@ -1,21 +1,37 @@
-# HustWebAuth
+HustWebAuth
+===========
+
 锐捷 WEB 认证跨平台脚本
 
-## 使用方法
-1. 下载指定架构的[可执行文件](https://github.com/a76yyyy/HustWebAuth/releases)
-2. 重命名可执行文件为 `HustWebAuth` 或 `HustWebAuth.exe`
-3. 命令行运行 `./HustWebAuth -h` 查看帮助
-4. 命令行运行 `./HustWebAuth -a account -p password` 进行认证
+使用方法
+-----------
+1. 安装
+    > 方式一: 使用 `go install` 命令安装
+    > 
+    > ```bash
+    > go install github.com/a76yyyy/HustWebAuth@latest
+    > ```
+    > 
+    > 方式二: 下载 `release` 可执行文件
+    >
+    > 1. 下载指定架构的[可执行文件](https://github.com/a76yyyy/HustWebAuth/releases)
+    > 2. 重命名可执行文件为 `HustWebAuth` 或 `HustWebAuth.exe`
+    > 3. **(建议)** 将可执行文件移动到 `/usr/local/bin`目录下 或 添加到`Path`环境变量中
 
-> ### Tips:
-> 1. 请确保你的账号密码正确
-> 2. 请确保你的网络连接正常, 且使用锐捷 Web 认证方式
-> 3. 可使用 `./HustWebAuth -a account -p password -o` 进行认证并保存配置文件
-> 4. 可使用 `./HustWebAuth login -r` 开启无感认证, 需提前下线你的设备
+2. 命令行运行 `HustWebAuth -h` 查看帮助
+3. 命令行运行 `HustWebAuth -a account -p password` 进行认证
 
-----------
+    > ### Tips:
+    > 
+    > 1. 请确保你的账号密码正确
+    > 2. 请确保你的网络连接正常, 且使用锐捷 Web 认证方式
+    > 3. 可使用 `HustWebAuth -a account -p password -o` 进行认证并保存配置文件至 `$HOME` 文件夹下
+    > 4. 可使用 `HustWebAuth login -r` 开启无感认证, 需提前下线你的设备
+
+Help 命令
+==========
 ```bash
-> ./HustWebAuth -h
+> HustWebAuth -h
 HustWebAuth is a program used to implement Ruijie web authentication.
 
 Usage:
@@ -29,7 +45,7 @@ Available Commands:
 
 Flags:
   -a, --account string           Account for ruijie web authentication
-  -f, --config string            Config file (default is localDir/HustWebAuth.yaml)
+  -f, --config string            Config file (default is $HOME/HustWebAuth.yaml)
   -c, --cycle                    Enable cycle mode
       --cycleDuration duration   Cycle duration (default 5m0s)
       --cycleRetry int           Cycle retry times, -1 means retry forever (default 3)
