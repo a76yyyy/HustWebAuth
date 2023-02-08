@@ -57,14 +57,14 @@ func GetCookie(url string) (*http.Cookie, error) {
 }
 
 // Login to auth the network
-func login(url string, queryString string, account string, password string, service string, cookie *http.Cookie) (string, error) {
+func login(url string, queryString string, account string, password string, serviceType string, cookie *http.Cookie) (string, error) {
 	trueurl := strings.Split(url, "/eportal/")[0] + "/eportal/InterFace.do?method=login"
 
 	client := &http.Client{}
 	var req *http.Request
 	data := "userId=" + account +
 		"&password=" + password +
-		"&service=" + service +
+		"&service=" + serviceType +
 		"&queryString=" + queryString +
 		"&operatorPwd=&operatorUserId=&validcode=&passwordEncrypt=false"
 	req, _ = http.NewRequest("POST", trueurl, strings.NewReader(data))
@@ -122,7 +122,7 @@ func Login() (res string, err error) {
 		return "", err
 	}
 
-	res, err = login(url, queryString, account, password, service, cookie)
+	res, err = login(url, queryString, account, password, serviceType, cookie)
 	if err != nil {
 		return "", err
 	}

@@ -41,7 +41,7 @@ var (
 	cfgFile       string
 	account       string
 	password      string
-	service       string
+	serviceType   string
 	pingIP        string
 	pingCount     int
 	pingTimeout   time.Duration
@@ -73,91 +73,99 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		if saveCfg {
+		runDaemon()
+	},
+}
+
+func runDaemon() {
+	if saveCfg {
+		return
+	}
+	if sysType != "windows" && daemonEnable {
+		if logFile == "" {
+			tmpDir := filepath.Join(os.TempDir(), "HustWebAuth")
+			if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
+				os.Mkdir(tmpDir, fs.ModeDir)
+			}
+			logFile = filepath.Join(tmpDir, filenameWithSuffix+".log")
+		}
+		if daemonPidFile == "" {
+			daemonPidFile = "/var/run/" + filenameWithSuffix + ".pid"
+		}
+		cntxt := &daemon.Context{
+			PidFileName: "/var/run/" + filenameWithSuffix + ".pid",
+			PidFilePerm: 0644,
+			LogFileName: logFile,
+			LogFilePerm: 0644,
+		}
+
+		// Reborn()返回 子进程为nil 父进程不为nil
+		child, err := cntxt.Reborn()
+		if err != nil {
+			log.Fatal("Unable to run: ", err)
+		}
+		if child != nil {
 			return
 		}
-		if sysType != "windows" && daemonEnable {
-			if logFile == "" {
-				tmpDir := filepath.Join(os.TempDir(), "HustWebAuth")
-				if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
-					os.Mkdir(tmpDir, fs.ModeDir)
-				}
-				logFile = filepath.Join(tmpDir, filenameWithSuffix+".log")
-			}
-			if daemonPidFile == "" {
-				daemonPidFile = "/var/run/" + filenameWithSuffix + ".pid"
-			}
-			cntxt := &daemon.Context{
-				PidFileName: "/var/run/" + filenameWithSuffix + ".pid",
-				PidFilePerm: 0644,
-				LogFileName: logFile,
-				LogFilePerm: 0644,
-			}
-
-			// Reborn()返回 子进程为nil 父进程不为nil
-			child, err := cntxt.Reborn()
-			if err != nil {
-				log.Fatal("Unable to run: ", err)
-			}
-			if child != nil {
-				return
-			}
-			defer cntxt.Release()
-
-			log.Println("- - - - - - - - - - - - - - - - - - -")
-			log.Println("HustWebAuth Daemon started.")
-		}
+		defer cntxt.Release()
 
 		log.Println("- - - - - - - - - - - - - - - - - - -")
-		log.Println("HustWebAuth started.")
-		retryCount := 0
-		res, err := Login()
-		if err != nil {
-			if cycleEnable {
+		log.Println("HustWebAuth Daemon started.")
+	}
+
+	runCycle()
+}
+
+func runCycle() {
+	log.Println("- - - - - - - - - - - - - - - - - - -")
+	log.Println("HustWebAuth started.")
+	retryCount := 0
+	res, err := Login()
+	if err != nil {
+		if cycleEnable {
+			if cycleRetry < 0 {
+				log.Println("Login failed, Err: ", err)
+				log.Println("Login retrying...")
+			} else if retryCount < cycleRetry {
+				retryCount++
+				log.Println("Login failed, Err: ", err)
+				log.Println("Login retry ", strconv.Itoa(retryCount), "times after "+cycleDuration.String())
+			} else {
+				log.Fatal("Login failed, Err: ", err)
+			}
+		} else {
+			log.Fatal("Login failed, Err: ", err)
+		}
+	}
+	if res != "" {
+		log.Println(res)
+	}
+
+	if cycleEnable {
+		eventsTick := time.NewTicker(cycleDuration)
+		defer eventsTick.Stop()
+		for range eventsTick.C {
+			res, err := Login()
+			if err != nil {
 				if cycleRetry < 0 {
 					log.Println("Login failed, Err: ", err)
 					log.Println("Login retrying...")
 				} else if retryCount < cycleRetry {
 					retryCount++
 					log.Println("Login failed, Err: ", err)
-					log.Println("Login retry ", strconv.Itoa(retryCount), "times after "+cycleDuration.String())
+					log.Println("Login retry", strconv.Itoa(retryCount), "times after", cycleDuration.String())
 				} else {
-					log.Fatal("Login failed, Err: ", err)
+					log.Println("Login failed, Err: ", err)
+					log.Fatal("Exceed the maximum number of retries, daemon stopped!")
 				}
 			} else {
-				log.Fatal("Login failed, Err: ", err)
-			}
-		}
-		if res != "" {
-			log.Println(res)
-		}
-
-		if cycleEnable {
-			eventsTick := time.NewTicker(cycleDuration)
-			defer eventsTick.Stop()
-			for range eventsTick.C {
-				res, err := Login()
-				if err != nil {
-					if cycleRetry < 0 {
-						log.Println("Login failed, Err: ", err)
-						log.Println("Login retrying...")
-					} else if retryCount < cycleRetry {
-						retryCount++
-						log.Println("Login failed, Err: ", err)
-						log.Println("Login retry", strconv.Itoa(retryCount), "times after", cycleDuration.String())
-					} else {
-						log.Println("Login failed, Err: ", err)
-						log.Fatal("Exceed the maximum number of retries, daemon stopped!")
-					}
-				} else {
-					if res != "" {
-						log.Println(res)
-					}
-					retryCount = 0
+				if res != "" {
+					log.Println(res)
 				}
+				retryCount = 0
 			}
 		}
-	},
+	}
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -181,7 +189,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "", "Config file (default is $HOME/HustWebAuth.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&account, "account", "a", "", "Account for ruijie web authentication")
 	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "Password for ruijie web authentication")
-	rootCmd.PersistentFlags().StringVarP(&service, "service", "s", "internet", "Service type, options: [internet, local]")
+	rootCmd.PersistentFlags().StringVarP(&serviceType, "serviceType", "s", "internet", "Service type, options: [internet, local]")
 
 	rootCmd.PersistentFlags().StringVar(&pingIP, "pingIP", "202.114.0.131", "IP address to ping")
 	rootCmd.PersistentFlags().IntVar(&pingCount, "pingCount", 3, "ping count")
@@ -210,7 +218,7 @@ NOTE: setting to true requires that it be run with super-user privileges.
 
 	viper.BindPFlag("auth.account", rootCmd.PersistentFlags().Lookup("account"))
 	viper.BindPFlag("auth.password", rootCmd.PersistentFlags().Lookup("password"))
-	viper.BindPFlag("auth.service", rootCmd.PersistentFlags().Lookup("service"))
+	viper.BindPFlag("auth.serviceType", rootCmd.PersistentFlags().Lookup("serviceType"))
 	viper.BindPFlag("ping.ip", rootCmd.PersistentFlags().Lookup("pingIP"))
 	viper.BindPFlag("ping.count", rootCmd.PersistentFlags().Lookup("pingCount"))
 	viper.BindPFlag("ping.timeout", rootCmd.PersistentFlags().Lookup("pingTimeout"))
@@ -267,7 +275,7 @@ func initConfig() {
 		log.Println("Using config file: " + viper.ConfigFileUsed())
 		account = viper.GetString("auth.account")
 		password = viper.GetString("auth.password")
-		service = viper.GetString("auth.service")
+		serviceType = viper.GetString("auth.serviceType")
 		pingIP = viper.GetString("ping.ip")
 		pingCount = viper.GetInt("ping.count")
 		pingTimeout = viper.GetDuration("ping.timeout")

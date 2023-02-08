@@ -83,7 +83,7 @@ Flags:
       --pingTimeout duration     Ping timeout (default 3s)
       --redirectURL string       Redirect URL (default "http://123.123.123.123")
   -o, --save                     Save config file
-  -s, --service string           Service, options: [internet, local] (default "internet")
+  -s, --serviceType string       Service Type, options: [internet, local] (default "internet")
       --syslog                   Enable syslog, not support windows
 
 Use "HustWebAuth [command] --help" for more information about a command.
