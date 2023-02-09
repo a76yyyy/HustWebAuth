@@ -9,7 +9,7 @@ import (
 
 func (p *program) Start(service.Service) error {
 	// Start should not block. Do the actual work async.
-	log.Println("Starting HustWebAuth service...") //nolint
+	log.Println("Starting HustWebAuth service...")
 	go p.run()
 	return nil
 }
@@ -19,7 +19,7 @@ func (p *program) run() {
 }
 
 func (p *program) Stop(service.Service) error {
-	log.Println("Stoping HustWebAuth service...") //nolint
+	log.Println("Stoping HustWebAuth service...")
 	return nil
 }
 
@@ -62,7 +62,7 @@ var (
 				log.Fatal(err)
 				return
 			}
-			log.Println("HustWebAuth service started.") //nolint
+			log.Println("HustWebAuth service started.")
 		},
 	}
 
@@ -81,7 +81,7 @@ var (
 				log.Fatal(err)
 				return
 			}
-			log.Println("HustWebAuth service stoped.") //nolint
+			log.Println("HustWebAuth service stoped.")
 		},
 	}
 
