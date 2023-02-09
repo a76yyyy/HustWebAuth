@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Nothing right now.
 
-## [1.1.0] - 2023.02.09 更新
+## [1.1.1] - 2023.02.09 更新
 
 ### Added
 
@@ -17,8 +17,11 @@ Nothing right now.
 
 ### Changed
 
-1. Update README.md.
-2. Fix typo.
+1. Update README.md
+2. Fix typo
+3. Fix OpenWrt boot error
+
+[1.1.1]: https://github.com/a76yyyy/HustWebAuth/releases/tag/v1.1.1
 
 ## [1.0.0] - 2022.11.24 更新
 
