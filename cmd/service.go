@@ -295,7 +295,7 @@ func svcStatus(s service.Service) (status service.Status, err error) {
 // https://github.com/AdguardTeam/AdGuardHome/issues/1386
 const openWrtScript = `#!/bin/sh /etc/rc.common
 
-START=55
+START=90
 STOP=01
 
 cmd="{{.Path}}{{range .Arguments}} {{.|cmd}}{{end}}"
@@ -325,6 +325,7 @@ start() {
     else
         echo "Starting $name"
         {{if .WorkingDirectory}}cd '{{.WorkingDirectory}}'{{end}}
+        mkdir -p {{.LogDirectory}}
         $cmd >> "$stdout_log" 2>> "$stderr_log" &
         echo $! > "$pid_file"
         if ! is_running; then
