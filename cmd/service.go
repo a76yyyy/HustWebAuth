@@ -50,5 +50,5 @@ var serviceCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(serviceCmd)
-	serviceCmd.AddCommand(installCmd, startCmd, stopCmd, restartCmd, uninstallCmd)
+	serviceCmd.AddCommand(installCmd, startCmd, statusCmd, stopCmd, restartCmd, uninstallCmd)
 }

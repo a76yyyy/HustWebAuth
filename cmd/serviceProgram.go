@@ -66,6 +66,32 @@ var (
 		},
 	}
 
+	statusCmd = &cobra.Command{
+		Use:   "status",
+		Short: "Get HustWebAuth service status",
+		Run: func(cmd *cobra.Command, args []string) {
+			s, err := newSVC(&program{}, newSVCConfig())
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+
+			status, err := s.Status()
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			switch status {
+			case service.StatusUnknown:
+				log.Println("HustWebAuth service status is unable to be determined due to an error or it was not installed.")
+			case service.StatusStopped:
+				log.Println("HustWebAuth service is stopped.")
+			case service.StatusRunning:
+				log.Println("HustWebAuth service is running.")
+			}
+		},
+	}
+
 	stopCmd = &cobra.Command{
 		Use:   "stop",
 		Short: "Stop HustWebAuth service",
