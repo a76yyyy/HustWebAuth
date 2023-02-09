@@ -92,10 +92,10 @@ func runDaemon() {
 			logFile = filepath.Join(tmpDir, filenameWithSuffix+".log")
 		}
 		if daemonPidFile == "" {
-			daemonPidFile = "/var/run/" + filenameWithSuffix + ".pid"
+			daemonPidFile = "/var/run/" + filenameWithSuffix + "_daemon.pid"
 		}
 		cntxt := &daemon.Context{
-			PidFileName: "/var/run/" + filenameWithSuffix + ".pid",
+			PidFileName: daemonPidFile,
 			PidFilePerm: 0644,
 			LogFileName: logFile,
 			LogFilePerm: 0644,
@@ -109,7 +109,10 @@ func runDaemon() {
 		if child != nil {
 			return
 		}
-		defer cntxt.Release()
+		defer func() {
+			cntxt.Release()
+			log.Println("HustWebAuth Daemon stopped.")
+		}()
 
 		log.Println("- - - - - - - - - - - - - - - - - - -")
 		log.Println("HustWebAuth Daemon started.")
