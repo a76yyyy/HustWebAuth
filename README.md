@@ -31,7 +31,7 @@ Web认证
 
 
 2. 命令行运行 `HustWebAuth -h` 查看帮助
-3. 命令行运行 `HustWebAuth -a account -p password` 进行认证
+3. 命令行运行 `HustWebAuth -a account -p password` 进行认证测试
 
     > ### Tips:
     > 
@@ -39,6 +39,15 @@ Web认证
     > 2. 请确保你的网络连接正常, 且使用锐捷 Web 认证方式
     > 3. 可使用 `HustWebAuth -a account -p password -o` 进行认证并保存配置文件至 `$HOME` 文件夹下
     > 4. 可使用 `HustWebAuth login -r` 开启无感认证, 需提前下线你的设备
+
+4. **(可选)** 使用 `HustWebAuth service install` 安装系统服务
+
+    > ### Tips:
+    >
+    > 1. 请确保你的配置文件 `HustWebAuth.yaml` 已正确写入至 `$HOME` 文件夹下
+    > 2. 使用 `HustWebAuth service install` 命令安装系统服务
+    > 3. Windows 系统请在配置文件中 `log` 选项下设置日志文件名以方便查看日志, 如 `File: "HustWebAuth.log"`
+    > 4. 建议以服务方式运行时, `log` 选项下设置 `connected` 为 `false` 以避免无效信息导致日志过大
 
 Help 命令
 ==========
@@ -51,9 +60,10 @@ Usage:
   HustWebAuth [command]
 
 Available Commands:
-  get         Get the login url from the redirect url.
+  get         Get the login url from the redirect url
   help        Help about any command
   login       Hust web auth only once
+  service     System service related commands
 
 Flags:
   -a, --account string           Account for ruijie web authentication
@@ -87,4 +97,28 @@ Flags:
       --syslog                   Enable syslog, not support windows
 
 Use "HustWebAuth [command] --help" for more information about a command.
+```
+
+Service Help 命令
+=================
+```bash
+> HustWebAuth service -h
+Use HustWebAuth as a system service: install, start, stop, uninstall, etc.
+
+Usage:
+  HustWebAuth service [flags]
+  HustWebAuth service [command]
+
+Available Commands:
+  install     Install HustWebAuth service
+  restart     Restart HustWebAuth service
+  start       Start HustWebAuth service
+  status      Get HustWebAuth service status
+  stop        Stop HustWebAuth service
+  uninstall   Uninstall HustWebAuth service from system
+
+Flags:
+  -h, --help   help for service
+
+Use "HustWebAuth service [command] --help" for more information about a command.
 ```
