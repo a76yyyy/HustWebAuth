@@ -11,11 +11,17 @@ type program struct {
 }
 
 func newSVCConfig() *service.Config {
+	var logOutput = false
+	if logFile != "" {
+		logOutput = true
+	}
 	return &service.Config{
 		Name:        "HustWebAuth",
 		DisplayName: "HustWebAuth",
 		Description: "A service used to implement Ruijie web authentication.",
 		Arguments:   []string{"service"},
+		EnvVars:     map[string]string{"HOME": homeDir},
+		Option:      service.KeyValue{"LogOutput": logOutput, "LogDirectory": logDir},
 	}
 }
 

@@ -61,9 +61,11 @@ var (
 	logConnected  bool
 )
 
-var path, _ = os.Executable()
-var _, filenameWithSuffix = filepath.Split(path)
+var execPath = getCurrentAbPath()
+var _, filenameWithSuffix = filepath.Split(execPath)
 var sysType = runtime.GOOS
+var homeDir string
+var homeError error
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -83,7 +85,7 @@ func runDaemon() {
 	}
 	if sysType != "windows" && daemonEnable {
 		if logFile == "" {
-			tmpDir := filepath.Join(os.TempDir(), "HustWebAuth")
+			tmpDir := filepath.Join(getTmpDir(), "HustWebAuth")
 			if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
 				os.Mkdir(tmpDir, fs.ModeDir)
 			}
@@ -178,6 +180,7 @@ func Execute() {
 }
 
 func init() {
+	cobra.OnInitialize(initHomeDir)
 	cobra.OnInitialize(initConfig)
 	cobra.OnInitialize(initLog)
 	cobra.OnFinalize(saveConfig)
@@ -243,6 +246,15 @@ NOTE: setting to true requires that it be run with super-user privileges.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+func initHomeDir() {
+	homeDir, homeError = os.UserHomeDir()
+	if homeError != nil {
+		log.Println("UserHomeDir Error:", homeError)
+		homeDir = getCurrentAbDir()
+		log.Println("Using Exec Dir as HOME: ", homeDir)
+	}
+}
+
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
@@ -256,13 +268,9 @@ func initConfig() {
 		// exDir := filepath.Dir(ex)
 		// viper.AddConfigPath(exDir)
 
-		home, err := os.UserHomeDir()
-		if err != nil {
-			log.Panic(err)
-		}
 		// Search config in home directory with name "HustWebAuth" (without extension).
-		viper.AddConfigPath(home)
-		cfgFile = filepath.Join(home, "HustWebAuth.yaml")
+		viper.AddConfigPath(homeDir)
+		cfgFile = filepath.Join(homeDir, "HustWebAuth.yaml")
 
 		viper.SetConfigType("yaml")
 		viper.SetConfigName("HustWebAuth")
