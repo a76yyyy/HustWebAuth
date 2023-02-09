@@ -45,9 +45,8 @@ Web认证
     > ### Tips:
     >
     > 1. 请确保你的配置文件 `HustWebAuth.yaml` 已正确写入至 `$HOME` 文件夹下
-    > 2. 使用 `HustWebAuth service install` 命令安装系统服务
-    > 3. Windows 系统请在配置文件中 `log` 选项下设置日志文件名以方便查看日志, 如 `File: "HustWebAuth.log"`
-    > 4. 建议以服务方式运行时, `log` 选项下设置 `connected` 为 `false` 以避免无效信息导致日志过大
+    > 2. Windows 系统请在配置文件中 `log` 选项下设置日志文件名以方便查看日志, 如 `File: "HustWebAuth.log"`
+    > 3. 建议以服务方式运行时, `log` 选项下设置 `connected` 为 `false` 以避免无效信息导致日志过大
 
 Help 命令
 ==========
