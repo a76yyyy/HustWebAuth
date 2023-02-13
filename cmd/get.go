@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-ping/ping"
+	ping "github.com/prometheus-community/pro-bing"
 	"github.com/spf13/cobra"
 )
 
@@ -59,12 +59,10 @@ func GetLoginUrl() (string, string, bool, error) {
 	pinger.Count = pingCount
 	pinger.Timeout = pingTimeout
 	pinger.SetPrivileged(pingPrivilege)
-	err = pinger.Run() // Blocks until finished.
-	if err != nil {
+	if err = pinger.Run(); err != nil { // Blocks until finished.
 		return "", "", false, err
 	}
-	stats := pinger.Statistics() // get send/receive/duplicate/rtt stats
-	if stats.PacketLoss < 100.0 {
+	if stats := pinger.Statistics(); stats.PacketLoss < 100.0 { // get send/receive/duplicate/rtt stats
 		return "", "", true, nil
 	}
 
@@ -77,7 +75,6 @@ func GetLoginUrl() (string, string, bool, error) {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
-
 	if err != nil {
 		return "", "", false, err
 	}
