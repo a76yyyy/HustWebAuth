@@ -15,8 +15,7 @@ func rootDirFS() (fsys fs.FS) {
 	// TODO(a.garipov): Use a better way if golang/go#44279 is ever resolved.
 	sysDir, err := windows.GetSystemDirectory()
 	if err != nil {
-		log.Println("Error: Getting root filesystem: %s; using C:", err)
-
+		log.Printf("Error: Getting root filesystem: %s; using C:\n", err)
 		// Assume that C: is the safe default.
 		return os.DirFS("C:")
 	}

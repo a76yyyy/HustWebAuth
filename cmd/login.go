@@ -5,6 +5,7 @@ Copyright © 2022 a76yyyy q981331502@163.com
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"log"
@@ -38,7 +39,7 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// Cmd.PersistentFlags().String("foo", "", "A help for foo")
-	loginCmd.PersistentFlags().BoolVarP(&register, "register", "r", false, "Register Mac address")
+	loginCmd.PersistentFlags().BoolVarP(&register, "register", "r", true, "Register Mac address")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
@@ -122,24 +123,31 @@ func Login() (res string, err error) {
 		return "", err
 	}
 
-	res, err = login(url, queryString, account, password, serviceType, cookie)
+	login_res, err := login(url, queryString, account, password, serviceType, cookie)
 	if err != nil {
 		return "", err
 	}
-	if len(strings.Split(res, "\"result\":\"success\"")) == 2 {
+	if len(strings.Split(login_res, "\"result\":\"success\"")) == 2 {
 		res = "Login success!"
 	} else {
 		return "", errors.New("Login fail: " + res)
 	}
 
 	if register {
-		userIndex := strings.Split(res, "\"")[3]
-		res, err := RegisterMAC(url, userIndex, cookie)
-		if err != nil {
-			register = false
-			return "", err
+		var resJson map[string]interface{}
+		err = json.Unmarshal([]byte(login_res), &resJson)
+		if err == nil {
+			if userIndex, ok := resJson["userIndex"].(string); ok {
+				res, err := RegisterMAC(url, userIndex, cookie)
+				if err != nil {
+					register = false
+					return "", err
+				}
+				return res, nil
+			}
 		}
-		return res, nil
+		register = false
+		return "Unsupport register service. ", nil
 	}
 	return res, nil
 }
