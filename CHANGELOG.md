@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Nothing right now.
 
+## [1.1.3] - 2023.05.12 更新
+
+### Changed
+
+1. Change default register from true to false
+
 ## [1.1.2] - 2023.05.01 更新
 
 ### Changed
