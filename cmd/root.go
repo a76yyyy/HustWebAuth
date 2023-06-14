@@ -42,6 +42,7 @@ var (
 	account       string
 	password      string
 	serviceType   string
+	encrypt       bool
 	pingIP        string
 	pingCount     int
 	pingTimeout   time.Duration
@@ -196,13 +197,14 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&account, "account", "a", "", "Account for ruijie web authentication")
 	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "Password for ruijie web authentication")
 	rootCmd.PersistentFlags().StringVarP(&serviceType, "serviceType", "s", "internet", "Service type, options: [internet, local]")
+	rootCmd.PersistentFlags().BoolVarP(&encrypt, "encrypt", "e", false, "Password is encrypted or not (default false)")
 
 	rootCmd.PersistentFlags().StringVar(&pingIP, "pingIP", "202.114.0.131", "IP address to ping")
 	rootCmd.PersistentFlags().IntVar(&pingCount, "pingCount", 3, "ping count")
 	rootCmd.PersistentFlags().DurationVar(&pingTimeout, "pingTimeout", 3*time.Second, "Ping timeout")
-	rootCmd.PersistentFlags().BoolVar(&pingPrivilege, "pingPrivilege", true, `Sets the type of ping pinger will send. 
-false means pinger will send an "unprivileged" UDP ping. 
-true means pinger will send a "privileged" raw ICMP ping. 
+	rootCmd.PersistentFlags().BoolVar(&pingPrivilege, "pingPrivilege", true, `Sets the type of ping pinger will send.
+false means pinger will send an "unprivileged" UDP ping.
+true means pinger will send a "privileged" raw ICMP ping.
 NOTE: setting to true requires that it be run with super-user privileges.
 `)
 	rootCmd.PersistentFlags().StringVar(&redirectURL, "redirectURL", "http://123.123.123.123", "Redirect URL")
@@ -225,6 +227,7 @@ NOTE: setting to true requires that it be run with super-user privileges.
 	viper.BindPFlag("auth.account", rootCmd.PersistentFlags().Lookup("account"))
 	viper.BindPFlag("auth.password", rootCmd.PersistentFlags().Lookup("password"))
 	viper.BindPFlag("auth.serviceType", rootCmd.PersistentFlags().Lookup("serviceType"))
+	viper.BindPFlag("auth.encrypt", rootCmd.PersistentFlags().Lookup("encrypt"))
 	viper.BindPFlag("ping.ip", rootCmd.PersistentFlags().Lookup("pingIP"))
 	viper.BindPFlag("ping.count", rootCmd.PersistentFlags().Lookup("pingCount"))
 	viper.BindPFlag("ping.timeout", rootCmd.PersistentFlags().Lookup("pingTimeout"))
@@ -287,6 +290,7 @@ func initConfig() {
 		account = viper.GetString("auth.account")
 		password = viper.GetString("auth.password")
 		serviceType = viper.GetString("auth.serviceType")
+		encrypt = viper.GetBool("auth.encrypt")
 		pingIP = viper.GetString("ping.ip")
 		pingCount = viper.GetInt("ping.count")
 		pingTimeout = viper.GetDuration("ping.timeout")

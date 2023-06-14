@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Nothing right now.
 
+## [1.1.4] - 2023.06.14 更新
+
+### Added
+
+1. Add `--encrypt` flag to judge whether the password is encrypted
+
 ## [1.1.3] - 2023.05.12 更新
 
 ### Changed

@@ -58,16 +58,22 @@ func GetCookie(url string) (*http.Cookie, error) {
 }
 
 // Login to auth the network
-func login(url string, queryString string, account string, password string, serviceType string, cookie *http.Cookie) (string, error) {
+func login(url string, queryString string, account string, password string, serviceType string, encrypt bool, cookie *http.Cookie) (string, error) {
 	trueurl := strings.Split(url, "/eportal/")[0] + "/eportal/InterFace.do?method=login"
 
 	client := &http.Client{}
 	var req *http.Request
+	var passwordEncrypt string
+	if encrypt {
+		passwordEncrypt = "true"
+	} else {
+		passwordEncrypt = "false"
+	}
 	data := "userId=" + account +
 		"&password=" + password +
 		"&service=" + serviceType +
 		"&queryString=" + queryString +
-		"&operatorPwd=&operatorUserId=&validcode=&passwordEncrypt=false"
+		"&operatorPwd=&operatorUserId=&validcode=&passwordEncrypt=" + passwordEncrypt
 	req, _ = http.NewRequest("POST", trueurl, strings.NewReader(data))
 	req.AddCookie(cookie)
 
@@ -123,14 +129,14 @@ func Login() (res string, err error) {
 		return "", err
 	}
 
-	login_res, err := login(url, queryString, account, password, serviceType, cookie)
+	login_res, err := login(url, queryString, account, password, serviceType, encrypt, cookie)
 	if err != nil {
 		return "", err
 	}
 	if len(strings.Split(login_res, "\"result\":\"success\"")) == 2 {
 		res = "Login success!"
 	} else {
-		return "", errors.New("Login fail: " + res)
+		return "", errors.New("Login fail: " + login_res)
 	}
 
 	if register {

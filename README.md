@@ -17,11 +17,11 @@ Web认证
 -----------
 1. 安装
     > 方式一: 使用 `go install` 命令安装
-    > 
+    >
     > ```bash
     > go install github.com/a76yyyy/HustWebAuth@latest
     > ```
-    > 
+    >
     > 方式二: 下载 `release` 可执行文件
     >
     > 1. 下载指定架构的[可执行文件](https://github.com/a76yyyy/HustWebAuth/releases)
@@ -34,7 +34,7 @@ Web认证
 3. 命令行运行 `HustWebAuth -a account -p password` 进行认证测试
 
     > ### Tips:
-    > 
+    >
     > 1. 请确保你的账号密码正确
     > 2. 请确保你的网络连接正常, 且使用锐捷 Web 认证方式
     > 3. 可使用 `HustWebAuth -a account -p password -o` 进行认证并保存配置文件至 `$HOME` 文件夹下
@@ -72,6 +72,7 @@ Flags:
       --cycleRetry int           Cycle retry times, -1 means retry forever (default 3)
   -d, --daemon                   Enable daemon mode, not support windows
       --daemonPidFile string     Daemon pid file
+  -e, --encrypt bool             Password is encrypted or not(default false)
   -h, --help                     help for main.exe
       --logAppend                Log file append mode.
                                  NOTE: if logRandom is true, it will be ignored (default true)

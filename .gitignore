@@ -7,3 +7,5 @@ ruijie
 HustWebAuth*
 .vscode/
 *.yaml
+__debug_bin*
+.lh/
